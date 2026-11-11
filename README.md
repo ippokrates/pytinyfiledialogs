@@ -9,10 +9,8 @@ dialogs look like your system dialogs on Linux, macOS, and Windows.
 
 ## Install
 
-Not on PyPI yet. Install the wheel from the latest release:
-
 ```bash
-pip install https://github.com/ippokrates/pytinyfiledialogs/releases/download/v1.0.0/pytinyfiledialogs-1.0.0-py3-none-any.whl
+pip install pytinyfiledialogs
 ```
 
 The wheel contains the compiled library for all three platforms. The right one
