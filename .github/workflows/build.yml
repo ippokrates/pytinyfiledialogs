@@ -1,6 +1,9 @@
 name: Build Binaries
 
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -90,8 +93,10 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     needs: build
     runs-on: ubuntu-latest
+    environment: pypi
     permissions:
       contents: write
+      id-token: write
 
     steps:
       - uses: actions/checkout@v4
@@ -130,3 +135,48 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release create "$GITHUB_REF_NAME" dist/*.whl --generate-notes
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: dist/
+
+  testpypi:
+    if: github.event_name == 'workflow_dispatch'
+    needs: build
+    runs-on: ubuntu-latest
+    environment: testpypi
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download all binaries
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Put binaries in the package
+        run: |
+          mkdir -p pytinyfiledialogs
+          find artifacts -name 'libtinyfiledialogs.*' -exec cp {} pytinyfiledialogs/ \;
+          ls -l pytinyfiledialogs/
+
+      - name: Require all three binaries
+        run: |
+          test -f pytinyfiledialogs/libtinyfiledialogs.so
+          test -f pytinyfiledialogs/libtinyfiledialogs.dylib
+          test -f pytinyfiledialogs/libtinyfiledialogs.dll
+
+      - name: Build wheel
+        run: |
+          python -m pip install build
+          python -m build --wheel
+
+      - name: Publish to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          packages-dir: dist/
