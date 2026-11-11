@@ -59,7 +59,7 @@ jobs:
           gcc -shared -O2 -static-libgcc src/tinyfiledialogs.c \
             -o pytinyfiledialogs/libtinyfiledialogs.dll \
             -Wl,--export-all-symbols \
-            -lcomdlg32 -lole32 -luser32 -lshell32
+            -lcomdlg32 -lole32 -luser32 -lshell32 -lgdi32
 
       - name: Verify (Linux)
         if: runner.os == 'Linux'
