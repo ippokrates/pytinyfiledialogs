@@ -1,0 +1,16 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "pytinyfiledialogs"
+version = "1.0.0"
+description = "Native OS dialogs for Python: message box, file open and save, folder, input, color, notification, beep."
+readme = "README.md"
+license = {text = "Zlib"}
+requires-python = ">=3.8"
+
+[tool.hatch.build.targets.wheel]
+# This tells Python to include the .so, .dll, and .dylib files inside the final pip package
+packages = ["pytinyfiledialogs"]
+artifacts = ["pytinyfiledialogs/*.so", "pytinyfiledialogs/*.dll", "pytinyfiledialogs/*.dylib"]

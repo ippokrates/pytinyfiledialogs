@@ -1,0 +1,17 @@
+# Compiled libraries (built by make locally or by CI)
+/pytinyfiledialogs/*.so
+/pytinyfiledialogs/*.dll
+/pytinyfiledialogs/*.dylib
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
