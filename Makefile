@@ -12,6 +12,7 @@ ifeq ($(UNAME_S), Darwin)
 	LIB_EXT = dylib
 endif
 # For Windows (MinGW), you'd set it to dll
+# Windows builds are handled by .github/workflows/build.yml
 
 TARGET = pytinyfiledialogs/libtinyfiledialogs.$(LIB_EXT)
 
