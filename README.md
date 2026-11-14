@@ -29,7 +29,7 @@ import pytinyfiledialogs as tfd
 | `message_box(title, message, dialog_type="ok", icon_type="info")` | `1` yes/ok, `0` no or cancel, `2` no in `yesnocancel` |
 | `notify_popup(title, message, icon_type="info")` | `1` |
 | `input_box(title, message, default_input="")` | text, or `None` on cancel |
-| `open_file_dialog(title, default_path="", filters=None, filter_description=None, allow_multiple=False)` | path, or `None` on cancel |
+| `open_file_dialog(title, default_path="", filters=None, filter_description=None, allow_multiple=False)` | path, or list of paths when `allow_multiple=True`, or `None` on cancel |
 | `save_file_dialog(title, default_path="", filters=None, filter_description=None)` | path, or `None` on cancel |
 | `select_folder_dialog(title, default_path="")` | path, or `None` on cancel |
 | `color_chooser(title, default_hex_rgb="", default_rgb=(0, 128, 255))` | `"#RRGGBB"`, or `None` on cancel |
@@ -49,13 +49,21 @@ path = tfd.open_file_dialog(
 print(path)  # "/home/me/cat.png", or None
 ```
 
-With `allow_multiple=True`, the returned paths are joined with `|`:
+With `allow_multiple=True`, the return value is a list of paths:
 
 ```python
 paths = tfd.open_file_dialog(filters=["*.txt"], allow_multiple=True)
-for path in (paths or "").split("|"):
-    ...
+if paths is not None:
+    for path in paths:
+        print(path)
 ```
+
+`None` means the dialog was canceled. A single selected file still comes back
+as a one-item list.
+
+> On Linux and macOS a filename may contain `|`. The underlying library joins
+> selections with `|` and offers no escape, so such a file can be split into
+> two paths.
 
 ### Ask for text
 
@@ -66,7 +74,7 @@ name = tfd.input_box("Your name", "Type it below")
 password = tfd.input_box("Password", "", default_input=None)
 ```
 
-### Save a file
+### Choose a save path
 
 ```python
 path = tfd.save_file_dialog(
@@ -77,6 +85,27 @@ path = tfd.save_file_dialog(
 )
 ```
 
+The save dialog returns a path; your code must write the file.
+
+### Message box
+
+```python
+answer = tfd.message_box("Confirm", "Continue?", dialog_type="yesno")
+if answer == 1:
+    print("Yes")
+```
+
+For `yesnocancel`, the results are `1` (Yes), `2` (No), and `0` (Cancel).
+
+### Other dialogs
+
+```python
+folder = tfd.select_folder_dialog("Choose a folder")
+color = tfd.color_chooser("Choose a color", default_hex_rgb="#0080FF")
+tfd.notify_popup("Finished", "Your report is ready")
+tfd.beep()
+```
+
 ## Notes
 
 - **Filters are glob patterns**, like `*.png`, not descriptions. They only
@@ -85,8 +114,6 @@ path = tfd.save_file_dialog(
   descriptions. Avoid them, or the dialog shows an error text instead.
 - **Linux needs a dialog backend.** Install `zenity` or `kdialog`. Without one,
   the library falls back to a terminal prompt or a plain input prompt.
-- **`yesnocancel` uses three numbers.** `1` is Yes, `2` is No, `0` is Cancel.
-  In a two-button box, No is `0` instead.
 - **macOS and Windows need nothing extra.** They use native dialogs.
 
 ## Build from source
@@ -105,11 +132,11 @@ GitHub Actions, not locally.
 
 ## Releasing
 
-`pyproject.toml` and the tag must match: `version = "1.0.0"` and `v1.0.0`.
+`pyproject.toml` and the tag must match: `version = "2.0.0"` and `v2.0.0`.
 
 ```bash
-git tag v1.0.0
-git push origin v1.0.0
+git tag v2.0.0
+git push origin v2.0.0
 ```
 
 That starts the workflow. It builds all three binaries, makes one wheel, and

@@ -1,7 +1,7 @@
 import ctypes
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List, Union
 
 # 1. Dynamically locate the compiled binary based on the OS
 base_dir = Path(__file__).parent
@@ -96,7 +96,11 @@ def notify_popup(title: str, message: str, icon_type: str = "info") -> int:
 
 
 def message_box(title: str, message: str, dialog_type: str = "ok", icon_type: str = "info") -> int:
-    """Shows a native message box. Returns 1 for OK/Yes, 0 for Cancel/No."""
+    """Show a native message box.
+
+    Return 1 for OK/Yes, 0 for Cancel or No in a yesno dialog,
+    and 2 for No in a yesnocancel dialog.
+    """
     return tfd.tinyfd_messageBox(
         _c_str(title), _c_str(message), _c_str(dialog_type), _c_str(icon_type), 1
     )
@@ -134,16 +138,25 @@ def open_file_dialog(
     filters: Optional[list] = None,
     filter_description: Optional[str] = None,
     allow_multiple: bool = False,
-) -> Optional[str]:
+) -> Union[str, List[str], None]:
     """Opens a file picker. Returns the path or None if canceled.
-    When allow_multiple is True, multiple paths are separated by '|'.
+    When allow_multiple is True, multiple paths are a list of paths.
     """
     count, c_filters, c_description = _filter_args(filters, filter_description)
     result = tfd.tinyfd_openFileDialog(
-        _c_str(title), _c_str(default_path), count, c_filters,
-        c_description, 1 if allow_multiple else 0
+        _c_str(title),
+        _c_str(default_path),
+        count,
+        c_filters,
+        c_description,
+        1 if allow_multiple else 0
     )
-    return _decode(result)
+    
+    decoded = _decode(result)
+
+    if allow_multiple and decoded is not None:
+        return decoded.split("|")
+    return decoded
 
 
 def select_folder_dialog(

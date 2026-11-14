@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pytinyfiledialogs"
-version = "1.0.1"
+version = "2.0.0"
 description = "Native OS dialogs for Python: message box, file open and save, folder, input, color, notification, beep."
 readme = "README.md"
 license = {text = "Zlib"}
